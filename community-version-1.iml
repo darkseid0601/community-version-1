@@ -102,5 +102,10 @@
     <orderEntry type="library" name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-autoconfigure:2.2.2" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis:mybatis:3.5.9" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis:mybatis-spring:2.0.7" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-mail:2.6.7" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context-support:5.3.20" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.mail:jakarta.mail:1.6.7" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.activation:jakarta.activation:1.2.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.9" level="project" />
   </component>
 </module>

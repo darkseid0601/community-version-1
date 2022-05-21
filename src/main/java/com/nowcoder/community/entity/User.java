@@ -1,6 +1,7 @@
 package com.nowcoder.community.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Date;
  */
 @Data
 @ToString
+@NoArgsConstructor
 public class User {
     private int id;
     private String username;

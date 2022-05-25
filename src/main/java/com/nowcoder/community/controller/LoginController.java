@@ -4,6 +4,8 @@ import com.google.code.kaptcha.Producer;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
+import com.nowcoder.community.util.CommunityUtil;
+import com.nowcoder.community.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -44,19 +45,43 @@ public class LoginController implements CommunityConstant {
     @Autowired
     private Producer kaptchaProducer;
 
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    @Autowired
+    private MailClient mailClient;
+
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    /**
+     * @description: 转到注册页面
+     * @date: 2022/5/24 21:22
+     * @param: []
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisterPage() {
         return "/site/register";
     }
 
+    /**
+     * @description: 转到登录页面
+     * @date: 2022/5/24 21:21
+     * @param: []
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String getLoginPage() {
         return "/site/login";
     }
 
+    /**
+     * @description: 注册
+     * @date: 2022/5/24 21:21
+     * @param: [model, user]
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
@@ -71,6 +96,12 @@ public class LoginController implements CommunityConstant {
             return "/site/register";
         }
     }
+    /**
+     * @description" 激活账户
+     * @date: 2022/5/24 21:21
+     * @param: [model, userId, code]
+     * @return: java.lang.String
+     **/
     // http://localhost:8080/community/activation/101/code
     @RequestMapping(path = "/activation/{userId}/{code}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId, @PathVariable("code") String code) {
@@ -88,6 +119,12 @@ public class LoginController implements CommunityConstant {
         return "/site/operate-result";
     }
 
+    /**
+     * @description: 登录验证码
+     * @date: 2022/5/24 21:21
+     * @param: [response, session]
+     * @return: void
+     **/
     @RequestMapping(path = "/kaptcha", method = RequestMethod.GET)
     public void getKaptcha(HttpServletResponse response, HttpSession session) {
         // 生成验证码
@@ -107,6 +144,12 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    /**
+     * @description:登录
+     * @date: 2022/5/24 21:20
+     * @param: [username, password, code, rememberme, model, session, response]
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(String username, String password, String code, boolean rememberme,
                         Model model, HttpSession session, HttpServletResponse response) {
@@ -133,10 +176,82 @@ public class LoginController implements CommunityConstant {
         }
     }
 
+    /**
+     * @description: 退出登录
+     * @date: 2022/5/24 21:20
+     * @param: [ticket]
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
         return "redirect:/login";
     }
+
+    /**
+     * @description: 忘记密码页面
+     * @date: 2022/5/24 21:20
+     * @param: []
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/forget", method = RequestMethod.GET)
+    public String getForgerPage() {
+        return "/site/forget";
+    }
+
+    /**
+     * @description: 获取验证码
+     * @date: 2022/5/24 21:58
+     * @param: [email, session]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/forget/code", method = RequestMethod.GET)
+    @ResponseBody
+    public String getForgetCode(String email, HttpSession session) {
+        if (StringUtils.isBlank(email)) {
+            return CommunityUtil.getJSONString(1, "邮箱不能为空！");
+        }
+        // 发送邮件
+        Context context = new Context();
+        context.setVariable("email", email);
+        // 生成验证码
+        String code = CommunityUtil.generateUUID().substring(0, 4);
+        context.setVariable("verifyCode", code);
+        String content = templateEngine.process("/mail/forget", context);
+        mailClient.sendMail(email, "找回密码", content);
+        session.setAttribute("verifyCode", code);
+        return CommunityUtil.getJSONString(0);
+    }
+
+    /**
+     * @description: 重置密码
+     * @date: 2022/5/25 11:55
+     * @param: [email, verifyCode, password, model, session]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/forget/password", method = RequestMethod.POST)
+    public String resetPassword(String email, String verifyCode, String password, String confirmPassword, Model model, HttpSession session) {
+        String code = (String) session.getAttribute("verifyCode");
+        if(StringUtils.isBlank(code) || StringUtils.isBlank(verifyCode) || !code.equalsIgnoreCase(verifyCode)) {
+            model.addAttribute("codeMsg", "验证码错误！");
+            return "site/forget";
+        }
+        if(!password.equals(confirmPassword)) {
+            model.addAttribute("confirmPasswordMsg", "两次输入密码不一致！");
+            return "site/forget";
+        }
+        Map<String, Object> map = userService.resetPassword(email, password);
+        if(map.containsKey("user")) {
+              return "redirect:/login";
+        } else {
+            model.addAttribute("emailMsg", map.get("emailMsg"));
+            model.addAttribute("passwordMsg", map.get("passwordMsg"));
+            return "/site/forget";
+        }
+    }
+
+
+
+
 
 }

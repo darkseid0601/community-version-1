@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.servlet.http.HttpSession;
+import java.nio.charset.CoderMalfunctionError;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +52,12 @@ public class UserService  implements CommunityConstant {
         return userMapper.selectById(id);
     }
 
+    /**
+     * @description: 注册
+     * @date: 2022/5/24 21:17
+     * @param: [user]
+     * @return: java.util.Map<java.lang.String,java.lang.Object>
+     **/
     public Map<String, Object> register(User user) {
         Map<String ,Object> map = new HashMap<>();
 
@@ -103,6 +111,12 @@ public class UserService  implements CommunityConstant {
         return map;
     }
 
+    /**
+     * @description: 判断用户是否激活
+     * @date: 2022/5/24 21:18
+     * @param: [userId, code]
+     * @return: int
+     **/
     public int activation(int userId, String code) {
         User user = userMapper.selectById(userId);
         if(user.getStatus() == 1) {
@@ -116,6 +130,12 @@ public class UserService  implements CommunityConstant {
 
     }
 
+    /**
+     * @description: 登录
+     * @date: 2022/5/24 21:17
+     * @param: [username, password, expiredSeconds]
+     * @return: java.util.Map<java.lang.String,java.lang.Object>
+     **/
     public Map<String, Object> login(String username, String password, long expiredSeconds) {
         Map<String, Object> map = new HashMap<>();
 
@@ -162,11 +182,86 @@ public class UserService  implements CommunityConstant {
         loginTicketMapper.updateStatus(ticket, 1);
     }
 
+    /**
+     * @description: 寻找用户凭证
+     * @date: 2022/5/24 21:19
+     * @param: [ticket]
+     * @return: com.nowcoder.community.entity.LoginTicket
+     **/
     public LoginTicket findLoginTicket(String ticket) {
         return loginTicketMapper.selectByTicket(ticket);
     }
 
+    /**
+     * @description: 更新头像
+     * @date: 2022/5/24 21:17
+     * @param: [userId, headerUrl]
+     * @return: int
+     **/
     public int updateHeader(int userId, String headerUrl) {
         return userMapper.updateHeader(userId, headerUrl);
     }
+
+    /**
+     * @description: 重置密码
+     * @date: 2022/5/24 21:16
+     * @param: [email, password]
+     * @return: java.util.Map<java.lang.String,java.lang.Object>
+     **/
+    public Map<String, Object> resetPassword(String email, String password) {
+        Map<String, Object> map = new HashMap<>();
+        // 空值处理
+        if(StringUtils.isBlank(email)) {
+            map.put("emailMsg", "邮箱为空！");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码为空！");
+            return map;
+        }
+        // 验证邮箱
+        User user = userMapper.selectByEmail(email);
+        if(user == null) {
+            map.put("emailMsg", "邮箱未被注册！");
+            return map;
+        }
+        // 重置密码
+        password = CommunityUtil.md5(password + user.getSalt());
+        userMapper.updatePassword(user.getId(), password);
+
+        map.put("user", user);
+        return map;
+    }
+
+    /**
+     * @description: 修改密码
+     * @date: 2022/5/25 11:11
+     * @param: [userId, oldPassword, newPassword]
+     * @return: java.util.Map<java.lang.String,java.lang.Object>
+     **/
+    public Map<String, Object> updatePassword(int userId, String oldPassword, String newPassword) {
+        Map<String, Object> map = new HashMap<>();
+        // 空值处理
+        if(StringUtils.isBlank(oldPassword)) {
+            map.put("oldPasswordMsg", "旧密码为空！");
+            return map;
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg", "新密码为空！");
+            return map;
+        }
+        // 验证邮箱
+        User user = userMapper.selectById(userId);
+        oldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
+        if(!user.getPassword().equals(oldPassword)) {
+            map.put("oldPasswordMsg", "原密码输入有误！");
+            return map;
+        }
+        // 修改密码
+        newPassword = CommunityUtil.md5(newPassword + user.getSalt());
+        userMapper.updatePassword(userId, newPassword);
+
+        return map;
+    }
+
 }

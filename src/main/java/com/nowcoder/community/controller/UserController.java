@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * @BelongsProject: community-version-1
@@ -50,12 +51,25 @@ public class UserController {
     @Autowired
     private HostHolder hostHolder;
 
+
+    /**
+     * @description: 跳转设置页面
+     * @date: 2022/5/25 9:55
+     * @param: []
+     * @return: java.lang.String
+     **/
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "/site/setting";
     }
 
+    /**
+     * @description: 上传头像
+     * @date: 2022/5/25 9:55
+     * @param: [headerImage, model]
+     * @return: java.lang.String
+     **/
     @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
@@ -92,6 +106,12 @@ public class UserController {
         return "redirect:/index";
     }
 
+    /**
+     * @description: 获取头像
+     * @date: 2022/5/25 9:54
+     * @param: [fileName, response]
+     * @return: void
+     **/
     @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放路径
@@ -112,6 +132,35 @@ public class UserController {
         } catch (IOException e) {
             logger.error("读取头像失败: " + e.getMessage());
         }
+    }
+
+
+    /**
+     * @description: 修改密码
+     * @date: 2022/5/25 11:15
+     * @param: [oldPassword, newPassword, model]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
+    public String updatePassword(String oldPassword, String newPassword, String confirmPassword, Model model) {
+        User user = hostHolder.getUser();
+        if (StringUtils.isBlank(confirmPassword)) {
+            model.addAttribute("confirmPasswordMsg", "确认密码为空！");
+            return "/site/setting";
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("confirmPasswordMsg", "两次输入新密码不一致！");
+            return "/site/setting";
+        }
+        Map<String, Object> map = userService.updatePassword(user.getId(), oldPassword, newPassword);
+        if (map == null || map.isEmpty()) {
+            return "redirect:/logout";
+        } else {
+            model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
+            model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
+            return "/site/setting";
+        }
+
     }
 
 }

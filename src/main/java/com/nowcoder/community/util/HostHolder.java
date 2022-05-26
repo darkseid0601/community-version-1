@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.util
  * @CreateTime: 2022-05-22  21:58
- * @Description:
+ * @Description: 已登录用户
  */
 @Component
 public class HostHolder {

@@ -2,7 +2,7 @@ package com.nowcoder.community.util;
 
 
 
-import net.minidev.json.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.DigestUtils;
 
@@ -13,7 +13,7 @@ import java.util.UUID;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.util
  * @CreateTime: 2022-05-21  09:10
- * @Description:
+ * @Description: 字符串工具
  */
 public class CommunityUtil {
 

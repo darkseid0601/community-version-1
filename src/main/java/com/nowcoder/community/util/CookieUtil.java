@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.util
  * @CreateTime: 2022-05-22  21:56
- * @Description:
+ * @Description: Cookie工具
  */
 public class CookieUtil {
     public static String getValue(HttpServletRequest request, String name) {

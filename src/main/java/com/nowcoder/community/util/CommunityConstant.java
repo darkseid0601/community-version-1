@@ -4,7 +4,7 @@ package com.nowcoder.community.util;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.util
  * @CreateTime: 2022-05-21  11:45
- * @Description:
+ * @Description: 常量定义
  */
 public interface CommunityConstant {
     /**

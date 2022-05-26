@@ -15,7 +15,7 @@ import javax.mail.internet.MimeMessage;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.util
  * @CreateTime: 2022-05-20  19:59
- * @Description:
+ * @Description: 邮件工具
  */
 @Component
 public class MailClient {

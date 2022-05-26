@@ -52,9 +52,10 @@ public class DiscussPostService {
      * @return: int
      **/
     public int addDiscussPost(DiscussPost post) {
-        if (post == null) {
-            throw new IllegalArgumentException("参数不能为空!");
-        }
+        // 这种判断方式无效, 在Controller里判断
+//        if (post == null) {
+//            throw new IllegalArgumentException("参数不能为空!");
+//        }
         // 转义HTML标记
         post.setTitle(HtmlUtils.htmlEscape(post.getTitle()));
         post.setContent(HtmlUtils.htmlEscape(post.getContent()));
@@ -63,6 +64,16 @@ public class DiscussPostService {
         post.setContent(sensitiveFilter.filter(post.getContent()));
 
         return discussPostMapper.insertDiscussPost(post);
+    }
+
+    /**
+     * @description: 查询帖子详情
+     * @date: 2022/5/26 14:31
+     * @param: [id]
+     * @return: com.nowcoder.community.entity.DiscussPost
+     **/
+    public DiscussPost findDiscussPostById(int id) {
+        return discussPostMapper.selectDiscussPostById(id);
     }
 
 

@@ -25,7 +25,7 @@ import java.util.Random;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.service
  * @CreateTime: 2022-05-20  18:28
- * @Description:
+ * @Description: 用户业务
  */
 @Service
 public class UserService  implements CommunityConstant {

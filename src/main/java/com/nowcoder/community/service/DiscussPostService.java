@@ -15,7 +15,7 @@ import java.util.List;
  * @BelongsProject: community
  * @BelongsPackage: com.nowcoder.community.service
  * @CreateTime: 2022-05-19  18:25
- * @Description:
+ * @Description: 帖子业务
  */
 @Service
 public class DiscussPostService {

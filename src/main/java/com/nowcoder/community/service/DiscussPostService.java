@@ -76,5 +76,15 @@ public class DiscussPostService {
         return discussPostMapper.selectDiscussPostById(id);
     }
 
+    /**
+     * @description: 更新评论数
+     * @date: 2022/5/27 16:39
+     * @param: [id, commentCount]
+     * @return: int
+     **/
+    public int updateCommentCount(int id, int commentCount) {
+        return discussPostMapper.updateCommentCount(id, commentCount);
+    }
+
 
 }

@@ -8,19 +8,18 @@ import java.util.Date;
 /**
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.entity
- * @CreateTime: 2022-05-20  18:20
- * @Description: 帖子实体类
+ * @CreateTime: 2022-05-27  11:14
+ * @Description: 评论实体类
  */
 @Data
 @ToString
-public class DiscussPost {
+public class Comment {
     private int id;
     private int userId;
-    private String title;
+    private int entityType;
+    private int entityId;
+    private int targetId;
     private String content;
-    private int type;
     private int status;
     private Date createTime;
-    private int commentCount;
-    private double score;
 }

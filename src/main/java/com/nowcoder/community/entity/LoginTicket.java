@@ -9,7 +9,7 @@ import java.util.Date;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.entity
  * @CreateTime: 2022-05-22  17:01
- * @Description:
+ * @Description: 用户凭证实体类
  */
 @Data
 @ToString

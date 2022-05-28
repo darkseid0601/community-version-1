@@ -10,7 +10,7 @@ import java.util.Date;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.entity
  * @CreateTime: 2022-05-20  18:17
- * @Description:
+ * @Description: 用户实体类
  */
 @Data
 @ToString

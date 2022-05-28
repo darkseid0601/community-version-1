@@ -263,5 +263,14 @@ public class UserService  implements CommunityConstant {
 
         return map;
     }
+    /**
+     * @description: 根据名字查找用户
+     * @date: 2022/5/28 22:22
+     * @param: [name]
+     * @return: com.nowcoder.community.entity.User
+     **/
+    public User findUserByName(String name) {
+        return userMapper.selectByName(name);
+    }
 
 }

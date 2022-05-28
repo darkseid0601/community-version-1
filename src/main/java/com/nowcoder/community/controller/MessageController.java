@@ -5,6 +5,7 @@ import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.MessageService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,11 +13,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.PipedOutputStream;
+import java.util.*;
 
 /**
  * @BelongsProject: community-version-1
@@ -37,7 +37,12 @@ public class MessageController {
     @Autowired
     private UserService userService;
 
-    // 私信列表
+    /**
+     * @description: 查看私信列表
+     * @date: 2022/5/28 22:25
+     * @param: [model, page]
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String getLetterList(Model model, Page page) {
         User user = hostHolder.getUser();
@@ -49,7 +54,7 @@ public class MessageController {
         // 会话列表
         List<Message> conversationList = messageService.findConversations(user.getId(), page.getOffset(), page.getLimit());
         List<Map<String, Object>> conversations = new ArrayList<>();
-        if(conversationList != null) {
+        if (conversationList != null) {
             for (Message message : conversationList) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("conversation", message);
@@ -69,6 +74,12 @@ public class MessageController {
         return "/site/letter";
     }
 
+    /**
+     * @description: 查看私信详情
+     * @date: 2022/5/28 22:24
+     * @param: [conversationId, model, page]
+     * @return: java.lang.String
+     **/
     @RequestMapping(path = "/detail/{conversationId}", method = RequestMethod.GET)
     public String getLetterDetail(@PathVariable("conversationId") String conversationId, Model model, Page page) {
         // 分页
@@ -79,7 +90,7 @@ public class MessageController {
         // 私信详情列表
         List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
         List<Map<String, Object>> letters = new ArrayList<>();
-        if(letterList != null) {
+        if (letterList != null) {
             for (Message message : letterList) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("letter", message);
@@ -91,10 +102,21 @@ public class MessageController {
         model.addAttribute("letters", letters);
         // 发私信的用户
         model.addAttribute("target", getLetterTarget(conversationId));
+        // 设置已读
+        List<Integer> ids = getLetterIds(letterList);
+        if (!ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
 
         return "/site/letter-detail";
     }
 
+    /**
+     * @description: 获取私信目标
+     * @date: 2022/5/28 22:26
+     * @param: [conversationId]
+     * @return: com.nowcoder.community.entity.User
+     **/
     private User getLetterTarget(String conversationId) {
         String[] ids = conversationId.split("_");
         int id0 = Integer.parseInt(ids[0]);
@@ -107,5 +129,52 @@ public class MessageController {
         }
     }
 
+    /**
+     * @description: 获取未读状态的id列表
+     * @date: 2022/5/28 22:25
+     * @param: [letterList]
+     * @return: java.util.List<java.lang.Integer>
+     **/
+    private List<Integer> getLetterIds(List<Message> letterList) {
+        List<Integer> ids = new ArrayList<>();
+        if (letterList != null) {
+            for (Message message : letterList) {
+                if (hostHolder.getUser().getId() == message.getToId() && message.getStatus() == 0) {
+                    ids.add(message.getId());
+                }
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * @description: 发送私信
+     * @date: 2022/5/28 22:24
+     * @param: [toName, content]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/send", method = RequestMethod.POST)
+    @ResponseBody
+    public String sendLetter(String toName, String content) {
+        User target = userService.findUserByName(toName);
+        if (target == null) {
+            return CommunityUtil.getJSONString(1, "用户不存在！");
+        }
+        Message message = new Message();
+        message.setFromId(hostHolder.getUser().getId());
+        message.setToId(target.getId());
+        // 拼接conversationId
+        if (message.getFromId() < message.getToId()) {
+            message.setConversationId(message.getFromId() + "_" + message.getToId());
+        } else {
+            message.setConversationId(message.getToId() + "_" + message.getFromId());
+        }
+
+        message.setContent(content);
+        message.setCreateTime(new Date());
+        messageService.addMessage(message);
+
+        return CommunityUtil.getJSONString(0);
+    }
 
 }

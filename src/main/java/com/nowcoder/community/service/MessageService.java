@@ -87,12 +87,22 @@ public class MessageService {
     }
 
     /**
-     * @description: 更新私信状态
+     * @description: 更新私信状态（已读）
      * @date: 2022/5/28 22:18
      * @param: [ids]
      * @return: int
      **/
     public int readMessage(List<Integer> ids) {
         return messageMapper.updateStatus(ids, 1);
+    }
+
+    /**
+     * @description: 更新私信状态（删除）
+     * @date: 2022/5/29 16:03
+     * @param: [id]
+     * @return: int
+     **/
+    public int deleteMessage(int id) {
+        return messageMapper.updateDelStatus(id, 2);
     }
 }

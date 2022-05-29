@@ -177,4 +177,10 @@ public class MessageController {
         return CommunityUtil.getJSONString(0);
     }
 
+    @RequestMapping(path = "/delete" , method = RequestMethod.POST)
+    @ResponseBody
+    public String deleteLetter(int id) {
+        messageService.deleteMessage(id);
+        return CommunityUtil.getJSONString(0);
+    }
 }

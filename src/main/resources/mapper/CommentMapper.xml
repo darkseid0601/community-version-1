@@ -30,6 +30,34 @@
         and entity_id = #{entityId}
     </select>
 
+<!--    统计评论的时候，要判断实体类型是否为1，还要在帖子表中查询id等于评论表中实体id且状态不为2的-->
+    <select id="selectCommentByUser" resultType="com.nowcoder.community.entity.Comment">
+        select <include refid="selectFields"></include> from comment
+        where status != 1
+        and user_id = #{userId}
+        and entity_type = 1
+        and exists (
+        select id from discuss_post where id = comment.entity_id and status != 2
+        )
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectCountByUser" resultType="java.lang.Integer">
+        select count(id) from comment
+        where status != 1
+        and user_id = #{userId}
+        and entity_type = 1
+        and exists (
+            select id from discuss_post where id = comment.entity_id and status != 2
+        )
+    </select>
+    <select id="selectCommentById" resultType="com.nowcoder.community.entity.Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where id = #{id}
+    </select>
+
     <insert id="insertComment" parameterType="com.nowcoder.community.entity.Comment">
         insert into comment (<include refid="insertFields"></include>)
         values (#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime})

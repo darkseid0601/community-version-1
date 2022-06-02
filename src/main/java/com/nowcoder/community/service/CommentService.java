@@ -77,4 +77,35 @@ public class CommentService implements CommunityConstant {
         }
         return rows;
     }
+
+    /**
+     * @description: 根据id查询评论
+     * @date: 2022/6/2 9:39
+     * @param: [id]
+     * @return: com.nowcoder.community.entity.Comment
+     **/
+    public Comment findCommentById(int id) {
+        return commentMapper.selectCommentById(id);
+    }
+
+    /**
+     * @description: 查询某用户的回复
+     * @date: 2022/6/2 9:41
+     * @param: [userId, offset, limit]
+     * @return: java.util.List<com.nowcoder.community.entity.Comment>
+     **/
+    public List<Comment> findUserComments(int userId, int offset, int limit) {
+        return commentMapper.selectCommentByUser(userId, offset, limit);
+    }
+
+    /**
+     * @description: 查询某用户回复数量
+     * @date: 2022/6/2 9:44
+     * @param: [userId]
+     * @return: int
+     **/
+    public int findUserCount(int userId) {
+        return commentMapper.selectCountByUser(userId);
+    } 
+
 }

@@ -1,10 +1,11 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequired;
+import com.nowcoder.community.entity.Comment;
+import com.nowcoder.community.entity.DiscussPost;
+import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
-import com.nowcoder.community.service.FollowService;
-import com.nowcoder.community.service.LikeService;
-import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.service.*;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
@@ -25,6 +26,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +63,12 @@ public class UserController implements CommunityConstant {
 
     @Autowired
     private FollowService followService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
+
+    @Autowired
+    private CommentService commentService;
 
 
     /**
@@ -203,6 +213,76 @@ public class UserController implements CommunityConstant {
         model.addAttribute("isFollowed", isFollowed);
 
         return "/site/profile";
+    }
+
+    /**
+     * @description: 我的帖子
+     * @date: 2022/6/2 9:47
+     * @param: [userId, model, page]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/mypost/{userId}", method = RequestMethod.GET)
+    public String getMyPost(@PathVariable("userId") int userId, Model model, Page page) {
+        User user = userService.findUserById(userId);
+        if(user == null) {
+            throw new RuntimeException("用户不存在！");
+        }
+        model.addAttribute("user", user);
+
+        // 分页
+        page.setLimit(5);
+        page.setPath("/user/mypost/" + userId);
+        page.setRows(discussPostService.findDiscussPostRows(userId));
+
+        // 帖子列表
+        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> discussVOList = new ArrayList<>();
+        if(discussPostList != null) {
+            for (DiscussPost discussPost : discussPostList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("discussPost", discussPost);
+                map.put("likeCount", likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPost.getId()));
+                discussVOList.add(map);
+            }
+        }
+        model.addAttribute("discussPosts", discussVOList);
+
+        return "/site/my-post";
+    }
+
+    /**
+     * @description: 我的回复
+     * @date: 2022/6/2 10:04
+     * @param: [userId, model, page]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/myreply/{userId}",method = RequestMethod.GET)
+    public String getMyReply(@PathVariable("userId") int userId, Model model, Page page) {
+        User user = userService.findUserById(userId);
+        if(user == null) {
+            throw new RuntimeException("用户不存在！");
+        }
+        model.addAttribute("user", user);
+
+        // 分页
+        page.setLimit(5);
+        page.setPath("/user/myreply/" + userId);
+        page.setRows(commentService.findUserCount(userId));
+
+        // 回复列表
+        List<Comment> commentList = commentService.findUserComments(userId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> commentVOList = new ArrayList<>();
+        if(commentList != null) {
+            for (Comment comment : commentList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("comment", comment);
+                DiscussPost post = discussPostService.findDiscussPostById(comment.getEntityId());
+                map.put("discussPost", post);
+                commentVOList.add(map);
+            }
+        }
+        model.addAttribute("comments", commentVOList);
+        return "/site/my-reply";
     }
 
 }

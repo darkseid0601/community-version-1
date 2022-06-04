@@ -105,4 +105,44 @@ public class MessageService {
     public int deleteMessage(int id) {
         return messageMapper.updateDelStatus(id, 2);
     }
+
+    /**
+     * @description: 查询某个主题下最新的通知
+     * @date: 2022/6/4 21:22
+     * @param: [userId, topic]
+     * @return: com.nowcoder.community.entity.Message
+     **/
+    public Message findLatestNotice(int userId, String topic) {
+        return messageMapper.selectLatestNotice(userId, topic);
+    }
+
+    /**
+     * @description: 查询某个主题所包含的通知数量
+     * @date: 2022/6/4 21:22
+     * @param: [userId, topic]
+     * @return: int
+     **/
+    public int findNoticeCount(int userId, String topic) {
+        return messageMapper.selectNoticeCount(userId, topic);
+    }
+
+    /**
+     * @description: 查询未读的通知的数量
+     * @date: 2022/6/4 21:22
+     * @param: [userId, topic]
+     * @return: int
+     **/
+    public int findNoticeUnreadCount(int userId, String topic) {
+        return messageMapper.selectNoticeUnreadCount(userId, topic);
+    }
+
+    /**
+     * @description: 查询某个主题所包含的通知列表
+     * @date: 2022/6/4 21:23
+     * @param: [userId, topic, offset, limit]
+     * @return: java.util.List<com.nowcoder.community.entity.Message>
+     **/
+    public List<Message> findNotices(int userId, String topic, int offset, int limit) {
+        return messageMapper.selectNotices(userId, topic, offset, limit);
+    }
 }

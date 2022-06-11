@@ -3,6 +3,7 @@ package com.nowcoder.community.dao;
 import com.nowcoder.community.entity.DiscussPost;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.ManagedBean;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
  * @Description:
  */
 @Mapper
+@Repository
 public interface DiscussPostMapper {
     List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
 

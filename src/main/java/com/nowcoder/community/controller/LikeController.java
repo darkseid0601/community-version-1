@@ -1,5 +1,6 @@
 package com.nowcoder.community.controller;
 
+import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.entity.Event;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.event.EventProducer;
@@ -20,7 +21,7 @@ import java.util.Map;
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.controller
  * @CreateTime: 2022-05-31  11:32
- * @Description:
+ * @Description: 点赞控制器
  */
 @Controller
 public class LikeController implements CommunityConstant {
@@ -34,9 +35,10 @@ public class LikeController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @LoginRequired
     @RequestMapping(path = "/like", method = RequestMethod.POST)
     @ResponseBody
-    public String like(int entityType, int entityId, int entityUserId, int postId) {
+    public String like(int entityType, int entityId, int entityUserId, Integer postId) {
         User user = hostHolder.getUser();
         // 判断用户是否登录将在后面统一用SpringSecurity处理
 

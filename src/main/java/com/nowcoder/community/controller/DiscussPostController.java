@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.*;
 
 
-
 /**
  * @BelongsProject: community-version-1
  * @BelongsPackage: com.nowcoder.community.controller
@@ -106,7 +105,7 @@ public class DiscussPostController implements CommunityConstant {
         model.addAttribute("likeCount", likeCount);
         // 帖子点赞状态
         int likeStatus = hostHolder.getUser() == null ? 0 :
-                likeService.findEntityLikeStatus(hostHolder.getUser().getId() , ENTITY_TYPE_POST, post.getId());
+                likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_POST, post.getId());
         model.addAttribute("likeStatus", likeStatus);
 
 
@@ -144,7 +143,7 @@ public class DiscussPostController implements CommunityConstant {
                         ENTITY_TYPE_COMMENT, comment.getId(), 0, Integer.MAX_VALUE);
                 // 回复VO列表
                 List<Map<String, Object>> replyVoList = new ArrayList<>();
-                if(replyList != null) {
+                if (replyList != null) {
                     for (Comment reply : replyList) {
                         Map<String, Object> replyVo = new HashMap<>();
                         // 回复
@@ -178,6 +177,81 @@ public class DiscussPostController implements CommunityConstant {
         model.addAttribute("comments", commentVoList);
 
         return "/site/discuss-detail";
+    }
+
+    /**
+     * @description: 置顶帖子
+     * @date: 2022/6/13 22:41
+     * @param: [id]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/top/{type}", method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id, @PathVariable("type") int type) {
+        if(type == 0) {
+            type = 1;
+        }else {
+            type = 0;
+        }
+        discussPostService.updateType(id, type);
+
+        // 触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+
+    }
+
+    /**
+     * @description: 加精帖子
+     * @date: 2022/6/13 22:45
+     * @param: [id]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/wonderful/{status}", method = RequestMethod.POST)
+    @ResponseBody//异步请求
+    public String setWonderful(int id,@PathVariable("status") int status) {
+        if (status == 0) {
+            status = 1;
+        } else {
+            status = 0;
+        }
+        discussPostService.updateStatus(id,status);
+        //触发发帖事件，同步到ES中
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    /**
+     * @description: 删除帖子
+     * @date: 2022/6/13 22:45
+     * @param: [id]
+     * @return: java.lang.String
+     **/
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String setDelete(int id) {
+        discussPostService.updateStatus(id, 2);
+
+        // 触发发帖时间
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
     }
 
 }

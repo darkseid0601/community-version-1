@@ -6,6 +6,11 @@ import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CookieUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -19,10 +24,10 @@ import java.util.Date;
  * @BelongsPackage: com.nowcoder.community.controller.interceptor
  * @CreateTime: 2022-05-22  22:02
  * @Description: 登录拦截器，查询登录用户
- *                  在请求开始时查询登录用户
- *                  在本次请求中持有用户数据
- *                  在模板视图上显示用户数据
- *                  在请求结束时清理用户数据
+ * 在请求开始时查询登录用户
+ * 在本次请求中持有用户数据
+ * 在模板视图上显示用户数据
+ * 在请求结束时清理用户数据
  */
 @Component
 public class LoginTicketInterceptor implements HandlerInterceptor {
@@ -47,6 +52,10 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.findUserById(loginTicket.getUserId());
                 // 在本次请求中持有用户
                 hostHolder.setUser(user);
+                // 构建用户认证的结果，并存入SecurityContext，以便于Security进行授权
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), userService.getAuthorities(user.getId()));
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
 
@@ -64,5 +73,6 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();
+//        SecurityContextHolder.clearContext();
     }
 }

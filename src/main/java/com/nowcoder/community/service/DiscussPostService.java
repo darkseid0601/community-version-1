@@ -86,5 +86,18 @@ public class DiscussPostService {
         return discussPostMapper.updateCommentCount(id, commentCount);
     }
 
+    /**
+     * @description: 更新帖子类型（置顶）
+     * @date: 2022/6/13 22:35
+     * @param: [id, type]
+     * @return: int
+     **/
+    public int updateType(int id, int type) {
+        return discussPostMapper.updateType(id, type);
+    }
+
+    public int updateStatus(int id, int status) {
+        return discussPostMapper.updateStatus(id, status);
+    }
 
 }

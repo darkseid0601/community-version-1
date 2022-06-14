@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * @Description: 使用元注解检查登录状态
  */
 
+@Deprecated
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LoginRequired {

@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: org.apache.lucene:lucene-queryparser:8.11.1">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-queryparser/8.11.1/lucene-queryparser-8.11.1.jar!/" />
+      <root url="jar://E:/Java_software/apache-maven-3.8.6/Repository/org/apache/lucene/lucene-queryparser/8.11.1/lucene-queryparser-8.11.1.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-queryparser/8.11.1/lucene-queryparser-8.11.1-javadoc.jar!/" />
+      <root url="jar://E:/Java_software/apache-maven-3.8.6/Repository/org/apache/lucene/lucene-queryparser/8.11.1/lucene-queryparser-8.11.1-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-queryparser/8.11.1/lucene-queryparser-8.11.1-sources.jar!/" />
+      <root url="jar://E:/Java_software/apache-maven-3.8.6/Repository/org/apache/lucene/lucene-queryparser/8.11.1/lucene-queryparser-8.11.1-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
